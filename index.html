@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحقيق 369</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Theme Color for PWA -->
+    <meta name="theme-color" content="#6c5ce7"/>
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+</head>
+<body>
+    
+    <header>
+        <div class="header-left">
+            <div id="backBtn" class="back-btn" onclick="goHome()" style="display:none;">➜</div>
+            <div class="header-title" id="pageTitle">تحقيق 369</div>
+        </div>
+        <div class="system-clock" id="clock">00:00 AM</div>
+    </header>
+
+    <main>
+        <!-- DASHBOARD (Goals List) -->
+        <div id="dashboard-section" class="section active">
+            <div class="card" style="text-align: center; padding: 30px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🎯</div>
+                <h3>أهدافك</h3>
+                <p style="color: var(--text-sub); font-size: 0.9rem;">أدر أهدافك وتجلى طقوسك</p>
+                <button class="btn" onclick="openAddGoalModal()" style="margin-top: 15px;">+ إضافة هدف جديد</button>
+            </div>
+            <div id="goalsList">
+                <!-- Goals will be injected here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- GOAL DETAIL (Rituals) -->
+        <div id="goal-detail-section" class="section">
+            <div id="goalImageContainer" style="width:100%; height:180px; background:var(--input-bg); border-radius:12px; margin-bottom:15px; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer;" onclick="uploadGoalImage()">
+                <span id="noGoalImg" style="color:var(--text-sub); pointer-events:none;">اضغط لرفع صورة الهدف</span>
+                <img id="activeGoalImg" style="width:100%; height:100%; object-fit:cover; display:none; pointer-events:none;">
+                <div style="position:absolute; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.6); color:white; padding:5px; font-size:0.8rem; text-align:center;">
+                    الفترة: <span id="activeGoalPeriod"></span>
+                </div>
+            </div>
+            
+            <!-- **NEW** Phase Indicator Card -->
+            <div id="phaseIndicatorCard" class="card" style="text-align: center; display: none;">
+                <h3 id="phaseTitle" style="margin-bottom: 8px; color: var(--primary);"></h3>
+                <p id="phaseDescription" style="font-size: 0.85rem; color: var(--text-sub); margin: 0;"></p>
+                <div class="goal-progress" style="margin-top: 10px;">
+                    <div id="phaseProgressBar" class="goal-bar"></div>
+                </div>
+            </div>
+
+            <!-- Completion Image Card -->
+            <div id="completionCard" class="card" style="display:none; text-align:center; border-color: var(--accent);">
+                 <h2 style="color: var(--primary);">🎉 تهانينا! لقد اكتمل الهدف 🎉</h2>
+                 <p>هذه هي صورة هدفك الذي تحقق:</p>
+                 <img id="completionImage" style="max-width:100%; border-radius:12px; margin-top:10px;">
+            </div>
+
+            <div class="card">
+                <h2>طقوس اليوم</h2>
+                <div id="ritualsContainer"></div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+      <!-- NEW SETTINGS SECTION (REPLACE THE OLD ONE) -->
+<div id="settings-section" class="section">
+    <div class="accordion">
+        <!-- Accordion Item 1: General Settings -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>⚙️ الإعدادات العامة</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <div class="setting-row">
+                    <span>تفعيل التنبيهات</span>
+                    <label class="switch"><input type="checkbox" id="notifToggle" onchange="toggleNotifs()"><span class="slider"></span></label>
+                </div>
+                <button class="btn btn-test" onclick="testNotification()">🔔 اختبار التنبيه العام</button>
+                <hr>
+                <h3>إدارة البيانات</h3>
+                <button class="btn btn-secondary" onclick="exportData()" style="margin-bottom:10px;">📥 تصدير</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 استيراد</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+                <button class="btn btn-danger" onclick="resetApp()" style="margin-top:20px;">⚠️ حذف الكل</button>
+            </div>
+        </div>
+
+        <!-- Accordion Item 2: Ritual Times -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>⏰ أوقات الطقوس الافتراضية</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p class="setting-description">سيتم تطبيق هذه الأوقات على الأهداف الجديدة. استخدم زر المزامنة لتطبيقها على الأهداف الحالية.</p>
+                <button class="btn btn-test" onclick="syncAndRefreshData()" style="margin-bottom: 15px; background-color: var(--accent);">
+                    🔄 مزامنة وتحديث الأهداف الحالية
+                </button>
+                <div id="defaultRitualTimes"></div>
+            </div>
+        </div>
+
+        <!-- Accordion Item 3: Ritual Tones -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>🎵 نغمات تنبيه الطقوس</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p class="setting-description">خصص نغمة تنبيه مختلفة لكل طقس. سيتم استخدام النغمة العامة إذا لم يتم تحديد نغمة مخصصة.</p>
+                <div class="setting-row-vertical">
+                    <label>النغمة العامة (الافتراضية)</label>
+                    <input type="file" id="soundUpload_general" data-sound-key="general" class="sound-upload" accept="audio/*">
+                </div>
+                <div class="setting-row-vertical">
+                    <label>نغمة طقس الصباح</label>
+                    <input type="file" id="soundUpload_morning" data-sound-key="morning" class="sound-upload" accept="audio/*">
+                </div>
+                <div class="setting-row-vertical">
+                    <label>نغمة طقس الظهر</label>
+                    <input type="file" id="soundUpload_afternoon" data-sound-key="afternoon" class="sound-upload" accept="audio/*">
+                </div>
+                <div class="setting-row-vertical">
+                    <label>نغمة طقس المساء</label>
+                    <input type="file" id="soundUpload_evening" data-sound-key="evening" class="sound-upload" accept="audio/*">
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item 4: Phase Music -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>🎶 موسيقى المراحل (الخمس أيام)</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p class="setting-description">خصص موسيقى خلفية لكل مرحلة من مراحل الهدف (كل 5 أيام). ستعمل هذه الموسيقى عند فتح صفحة الهدف.</p>
+                <div class="setting-row-vertical">
+                    <label>🧲 مرحلة الإطلاق (يوم 1-5)</label>
+                    <input type="file" id="musicUpload_phase1" data-music-key="phase1" class="music-upload" accept="audio/*">
+                </div>
+                <div class="setting-row-vertical">
+                    <label>🌟 مرحلة التصديق (يوم 6-10)</label>
+                    <input type="file" id="musicUpload_phase2" data-music-key="phase2" class="music-upload" accept="audio/*">
+                </div>
+                <div class="setting-row-vertical">
+                    <label>🎁 مرحلة الاستقبال (يوم 11-15)</label>
+                    <input type="file" id="musicUpload_phase3" data-music-key="phase3" class="music-upload" accept="audio/*">
+                </div>
+                 <div class="setting-row-vertical">
+                    <label>🔄 مرحلة الإحساس (يوم 16-20)</label>
+                    <input type="file" id="musicUpload_phase4" data-music-key="phase4" class="music-upload" accept="audio/*">
+                </div>
+                 <div class="setting-row-vertical">
+                    <label>🙏 مرحلة الامتنان (يوم 21-25)</label>
+                    <input type="file" id="musicUpload_phase5" data-music-key="phase5" class="music-upload" accept="audio/*">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    <!-- NAV -->
+    <nav id="mainNav">
+        <div class="nav-item active" onclick="switchTab('dashboard')"><span class="nav-icon">🏠</span>الرئيسية</div>
+        <div class="nav-item" onclick="switchTab('settings')"><span class="nav-icon">⚙️</span>الإعدادات</div>
+    </nav>
+
+    <!-- GUIDE WIDGET -->
+    <div id="guideWidget" class="floating-guide">
+        <button class="guide-toggle" onclick="toggleGuide()">💡</button>
+        <div class="guide-content">
+            <h3 style="margin:0 0 10px 0; text-align:center; color:var(--primary)">دليل الجذب (25 يوم)</h3>
+            <div class="guide-item"><div class="guide-head" onclick="this.nextElementSibling.classList.toggle('active')">🧲 1. اطلق بوضوح (يوم 1-5)</div><div class="guide-body">حدد رغبتك بدقة ووضوح مطلق. اكتبها بصيغة الحاضر كأنها تحققت بالفعل.</div></div>
+            <div class="guide-item"><div class="guide-head" onclick="this.nextElementSibling.classList.toggle('active')">🌟 2. صدّق (يوم 6-10)</div><div class="guide-body">آمن إيماناً كاملاً بأنك تستحق هذه الرغبة وأنها في طريقها إليك. تخلص من أي شكوك.</div></div>
+            <div class="guide-item"><div class="guide-head" onclick="this.nextElementSibling.classList.toggle('active')">🎁 3. استقبل (يوم 11-15)</div><div class="guide-body">كن منفتحاً ومستعداً لاستقبال هدفك بأي شكل يأتي به. كن مرناً ولا تتمسك بطريقة محددة لتحققه.</div></div>
+            <div class="guide-item"><div class="guide-head" onclick="this.nextElementSibling.classList.toggle('active')">🔄 4. الإحساس (يوم 16-20)</div><div class="guide-body">عش مشاعر تحقيق الحلم الآن. اشعر بالفرح، السلام، والبهجة كما لو أن هدفك قد تحقق بالفعل.</div></div>
+            <div class="guide-item"><div class="guide-head" onclick="this.nextElementSibling.classList.toggle('active')">🙏 5. الامتنان (يوم 21-25)</div><div class="guide-body">اشكر الله والكون على كل النعم في حياتك الآن، وعلى هدفك الذي استقبلته. الامتنان يضاعف الوفرة.</div></div>
+        </div>
+    </div>
+
+    <!-- ADD GOAL MODAL -->
+    <div id="addGoalModal" class="modal">
+        <div class="modal-content">
+            <h2>هدف جديد</h2>
+            <label>اسم الهدف</label>
+            <input type="text" id="newGoalName" placeholder="مثال: سيارة جديدة">
+            <label>تاريخ البدء</label>
+            <input type="date" id="newGoalStart">
+            <label>تاريخ الانتهاء</label>
+            <input type="date" id="newGoalEnd" readonly> <!-- Make it readonly -->
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                <button class="btn" onclick="createNewGoal()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="audioControl" onclick="stopAlarm()">🔇 إيقاف الصوت</button>
+    <div id="toast">رسالة</div>
+    <audio id="alarmSound" loop></audio>
+    <div id="app-container">
+        <!-- سيتم تحميل الهيكل من ملف html.php لاحقاً، ولكن للتبسيط سنضعه هنا الآن -->
+    </div>
+
+    <!-- 3. ربط ملف الجافاسكريبت (يجب أن يكون في نهاية Body) -->
+    <script src="script.js"></script>
+</body>
+</html>
+    <header>
+        <!-- ... -->
+    </header>
+    <main>
+        <!-- ... -->
+    </main>
+    <nav>
+        <!-- ... -->
+    </nav>
+    <!-- ... all other elements ... -->
+
+    <script src="script.js"></script>
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/tahqeeq369/sw.js') // **مهم:** غيّر '/tahqeeq369/' إلى اسم مستودعك
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
+

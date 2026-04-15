@@ -1,0 +1,21 @@
+{
+    "name": "تطبيق تحقيق 369",
+    "short_name": "تحقيق 369",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#f4f6f8",
+    "theme_color": "#6c5ce7",
+    "description": "تطبيق لمساعدتك على ممارسة طقوس الجذب 369 وتحقيق أهدافك.",
+    "icons": [
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
