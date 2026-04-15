@@ -3,16 +3,15 @@
 const CACHE_NAME = 'tahqeeq369-cache-v1';
 // **مهم:** أضف هنا كل الملفات التي تريد أن تعمل بدون إنترنت
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
-    // أضف هنا مسارات النغمات الافتراضية إذا أردت
-    // '/sounds/default-alarm.mp3'
+    '/tahqeeq369/',
+    '/tahqeeq369/index.html',
+    '/tahqeeq369/style.css',
+    '/tahqeeq369/script.js',
+    '/tahqeeq369/manifest.json',
+    '/tahqeeq369/icons/icon-192x192.png',
+    '/tahqeeq369/icons/icon-512x512.png'
 ];
+
 
 // Install event: cache all the essential files
 self.addEventListener('install', event => {
